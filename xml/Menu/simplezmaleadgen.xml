@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<menu>
+  <item>
+    <path>civicrm/simplezmaleadgen/configuration</path>
+    <page_callback>CRM_Simplezmaleadgen_Form_Configuration</page_callback>
+    <title>Configuration</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+</menu>
