@@ -2,11 +2,26 @@
 
 ![Screenshot](/images/screenshot.png)
 
-After Submission of a Contribution, this extension adds it's Contact to one of two lists in Zoho Marketing Automation.
+## Overview
 
-The lead is added after the contact confirms subscription.
+Create activity type and custom fields first, and enter ZMA client credentials (refer to Getting Started below) into configuration form, mailing subscription list name, activity type & custom field linked to the checkbox trigger (Marketing Consent).
+(Administer -> CiviContribute -> Configure Simple ZMA Lead Gen )
+
+After submission of a donation through Ninja Form is done, a Pending Contribution activity is created.
+
+This extension first adds it's Contact to the mailing subscription list in Zoho Marketing Automation (Name is based on the value entered through configuration form).
 
 If the email is not valid, the lead is not added.
+
+The lead is added after the contact confirms subscription if double opt-in is enabled.
+
+To disable double opt-in so that the lead will be added directly, in ZMA, go to settings page -> "Consent and privacy" -> "Double opt-in" -> turn off "Enable double opt-in".
+
+After Pending Contribution activity is updated to completed status, Contribution record will be created.
+
+For first time donors, adds contact into "First-Time Donors" list. Repeat donors, adds contact into "Repeated Donors" list while also removing him from "First-Time Donors" list (if he exists inside).
+
+Stores contact information & donation information in custom fields.
 
 The extension is licensed under [AGPL-3.0](LICENSE.txt).
 
