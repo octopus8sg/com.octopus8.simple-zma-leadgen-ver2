@@ -1,7 +1,5 @@
 # com.octopus8.simplezmaleadgen
 
-![Screenshot](/images/screenshot.png)
-
 ## Overview
 
 Create activity type and custom fields first, and enter ZMA client credentials (refer to Getting Started below) into configuration form, mailing subscription list name, activity type & custom field linked to the checkbox trigger (Marketing Consent).
