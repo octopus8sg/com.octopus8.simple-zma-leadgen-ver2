@@ -1,7 +1,5 @@
 # com.octopus8.simplezmaleadgen
 
-![Screenshot](/images/screenshot.png)
-
 Must create activity type and custom fields first, and enter ZMA client credentials into configuration page
 (Administer -> CiviContribute -> Configure Simple ZMA Lead Gen )
 
