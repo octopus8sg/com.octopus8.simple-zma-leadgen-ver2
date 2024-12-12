@@ -20,7 +20,19 @@
     {/if}
     {assign var=i value=$i+1}
     {/foreach}
+
+    {if $lastSavedCustomFieldsTable}
+    <tr>
+      <td colspan="3">
+        {$leftEmptySpace}
+      </td>
+      <td colspan="2">
+        {$lastSavedCustomFieldsTable}
+      </td>
+    </tr>
+    {/if}
 </table>
+
 {*    {debug}*}
 {* FOOTER *}
 <div class="crm-submit-buttons">

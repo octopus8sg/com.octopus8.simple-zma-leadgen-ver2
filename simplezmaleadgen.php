@@ -127,7 +127,7 @@ function simplezmaleadgen_civicrm_pre($op, $objectName, $objectId, &$objectRef)
     global $originalState;
     if ($objectName === 'Contribution') {
         if ($op === 'edit') {
-//            $originalState = (Array) $objectRef;
+            //            $originalState = (Array) $objectRef;
             $prev_status = civicrm_api4('Contribution', 'get', [
                 'select' => [
                     'contribution_status_id',
@@ -140,27 +140,44 @@ function simplezmaleadgen_civicrm_pre($op, $objectName, $objectId, &$objectRef)
                 'checkPermissions' => FALSE,
             ])->first();
             $originalState = (Array) $prev_status;
-//            U::writeLog($prev_status, 'simplezmaleadgen_civicrm_pre');
+            //            U::writeLog($prev_status, 'simplezmaleadgen_civicrm_pre');
 
         }
     }
 }
 
-function simplezmaleadgen_civicrm_post($op, $objectName, $objectId, &$objectRef)
-{
-    global $modifiedState;
-//    $params = (array) $object;
-//    U::writeLog($op . ':' . $objectName, 'simplezmaleadgen_civicrm_post');
-    if ($objectName === 'Contribution') {
-        if ($op === 'edit') {
-            $modifiedState = (Array) $objectRef;
-        }
-    }
+// function simplezmaleadgen_civicrm_post($op, $objectName, $objectId, &$objectRef)
+// {
+//     global $modifiedState;
+//     //    $params = (array) $object;
+// //    U::writeLog($op . ':' . $objectName, 'simplezmaleadgen_civicrm_post');
+//     if ($objectName === 'Contribution') {
+//         if ($op === 'edit') {
+//             $modifiedState = (Array) $objectRef;
+//         }
+//     }
 
-}
+// }
 
 function simplezmaleadgen_civicrm_postCommit($op, $objectName, $objectId, &$object)
 {
+    Civi::log()->debug();
+    // add contact into mailing subscription upon ninja form activity submission
+    if ($objectName == 'Activity') {
+        // U::writeLog($op);
+        if ($op === 'create') {
+            // Get the activity type ID for the form submission activity
+            $activityTypeId = U::getActivityTypeId();
+            // U::writeLog($activityTypeId, 'activityTypeId');
+
+            // Check if the created activity is of the form submission
+            if ($object->activity_type_id == $activityTypeId) {
+                // U::writeLog("before start add contact");
+                U::startAddContact($activityTypeId, $objectId);
+            }
+        }
+    }
+
     // Compare the original and modified states of the object
     global $originalState;
     global $modifiedState;
@@ -170,20 +187,19 @@ function simplezmaleadgen_civicrm_postCommit($op, $objectName, $objectId, &$obje
             $prev_status_id = $originalState['contribution_status_id'];
             $new_status_id = $modifiedState['contribution_status_id'];
             $prev_status = U::getContributionStatusName($prev_status_id);
-            $new_status =  U::getContributionStatusName($new_status_id);
-//                U::writeLog($originalState, '$originalState simplezmaleadgen_civicrm_postCommit');
+            $new_status = U::getContributionStatusName($new_status_id);
+            //                U::writeLog($originalState, '$originalState simplezmaleadgen_civicrm_postCommit');
 //                U::writeLog($modifiedState, '$modifiedState simplezmaleadgen_civicrm_postCommit');
 //                U::writeLog($prev_status, '$prev_status simplezmaleadgen_civicrm_postCommit');
 //                U::writeLog($new_status, '$new_status simplezmaleadgen_civicrm_postCommit');
-            if($new_status == 'Completed' && $prev_status != $new_status){
+            if ($new_status == 'Completed' && $prev_status != $new_status) {
                 U::sendContributionContact($object);
-
             }
         }
         if ($op === 'create') {
             $new_status_id = $object->contribution_status_id;
-            $new_status =  U::getContributionStatusName($new_status_id);
-            if($new_status == 'Completed'){
+            $new_status = U::getContributionStatusName($new_status_id);
+            if ($new_status == 'Completed') {
                 U::sendContributionContact($object);
             }
         }

@@ -1,0 +1,20 @@
+/* Styles for the last saved custom fields table */
+#lastSavedCustomFieldsTableContainer {
+  display: flex;
+  align-items: flex-end;
+}
+#lastSavedCustomFieldsTable {
+  margin-top: 20px;
+  border-collapse: collapse;
+  width: 100%;
+}
+#lastSavedCustomFieldsTable th,
+#lastSavedCustomFieldsTable td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+#lastSavedCustomFieldsTable th {
+  background-color: #f2f2f2;
+  color: #000000;
+}
