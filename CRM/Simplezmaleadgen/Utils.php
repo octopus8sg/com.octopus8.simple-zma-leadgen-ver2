@@ -578,6 +578,24 @@ class CRM_Simplezmaleadgen_Utils
         return $zoho_id;
     }
 
+
+    // /**
+    //  * does not send contribution, rather sends contact of contribution as a lead
+    //  * for CLI etc
+    //  * @param $contact_id
+    //  * @return int|mixed
+    //  */
+    // public static function sendContributionContactByID($contribution_id)
+    // {
+    //     $zoho_id = 0;
+    //     $contribution = new CRM_Contribute_DAO_Contribution();
+    //     $contribution->id = $contribution_id;
+    //     if ($contribution->find(TRUE)) {
+    //         $zoho_id = self::sendContributionContact($contribution);
+    //     }
+    //     return $zoho_id;
+    // }
+
     public static function getContributionDetails($contact_id, $contribution_id)
     {
         self::writeLog($contact_id, 'contact id');
@@ -622,7 +640,6 @@ class CRM_Simplezmaleadgen_Utils
                         ['financial_type_id:name', '=', 'Non-Tax Deductible Donation']
                     ]
                 ],
-                ['contribution_status_id', '=', 1],
             ],
             'checkPermissions' => FALSE,
         ]);
@@ -692,6 +709,26 @@ class CRM_Simplezmaleadgen_Utils
             $donationMethod = self::getMethod($contributionDetails["donation_method"]);
             self::writeLog($donationMethod, 'donation method');
 
+            // switch ($contributionDetails["donation_method"]) {
+            //     case 1:
+            //         $donationMethod = "Credit Card";
+            //         break;
+            //     case 2:
+            //         $donationMethod = "Debit Card";
+            //         break;
+            //     case 3:
+            //         $donationMethod = "Cash";
+            //         break;
+            //     case 4:
+            //         $donationMethod = "Cheque";
+            //         break;
+            //     case 5:
+            //         $donationMethod = "EFT";
+            //         break;
+            //     default:
+            //         $donationMethod = "";
+            //         break;
+            // }
             $donationAmount = $contributionDetails["donation_amount"];
 
             $leadLists = self::getLists();
@@ -710,9 +747,7 @@ class CRM_Simplezmaleadgen_Utils
             $first_name = $dnscontact->first_name;
             $last_name = $dnscontact->last_name;
             $birth_date = $dnscontact->birth_date;
-            if ($birth_date) {
-                $formatted_birth_date = date('M d, Y', strtotime($birth_date));
-            }
+            $formatted_birth_date = date('M d, Y', strtotime($birth_date));
             $email = self::getPrimaryEmail($contact_id);
             $phone = self::getPrimaryPhone($contact_id);
             $addressInfo = self::getAddressInfo($contact_id);
@@ -975,8 +1010,7 @@ class CRM_Simplezmaleadgen_Utils
                     FROM civicrm_contribution
                     INNER JOIN civicrm_financial_type ON civicrm_contribution.financial_type_id = civicrm_financial_type.id
                     WHERE contact_id = %1
-                    AND civicrm_financial_type.name IN ('Donation', 'Tax Deductible Donation', 'Non-Tax Deductible Donation')
-                    AND contribution_status_id = 1";
+                    AND civicrm_financial_type.name IN ('Donation', 'Tax Deductible Donation', 'Non-Tax Deductible Donation')";
         $p = [1 => [$contact_id, 'Integer'],];
         $dao = CRM_CORE_DAO::executeQuery($query, $p);
 
@@ -1065,6 +1099,21 @@ class CRM_Simplezmaleadgen_Utils
         }
     }
 
+    // public static function getActivityTypeId($activityType)
+    // {
+    //     $query = "SELECT value
+    //             FROM civicrm_option_value
+    //             WHERE name = %1";
+    //     $p = [1 => [$activityType, 'String']];
+    //     $dao = CRM_Core_DAO::executeQuery($query, $p);
+
+    //     $value = NULL;
+    //     if ($dao->fetch()) {
+    //         $value = $dao->value;
+    //     }
+    //     return $value;
+    // }
+
     public static function getContactId($activityId)
     {
         $query = "SELECT contact_id
@@ -1129,6 +1178,29 @@ class CRM_Simplezmaleadgen_Utils
     }
     public static function getActivityDetails($activityTypeId, $activityId)
     {
+        // self::writeLog($activityTypeId, "activity type id inside getactivitydetails");
+        // self::writeLog($activityId, "activity id inside getactivitydetails");
+
+        // $query = "SELECT created_date, donation_method_9, donation_amount_10, subscribe_to_mailing_list_8
+        //         FROM civicrm_activity a, civicrm_value_donation_form_4 d
+        //         WHERE a.id = d.entity_id
+        //         AND a.activity_type_id = %1
+        //         AND a.id = %2";
+        // $p = [
+        //     1 => [$activityTypeId, 'Integer'],
+        //     2 => [$activityId, 'Integer']
+        // ];
+        // $dao = CRM_Core_DAO::executeQuery($query, $p);
+
+        // $details = [];
+        // if ($dao->fetch()) {
+        //     // $details["created_date"] = $dao->created_date;
+        //     $details["donation_method"] = $dao->donation_method_9;
+        //     $details["donation_amount"] = $dao->donation_amount_10;
+        //     $details["subscribe_choice"] = $dao->subscribe_to_mailing_list_8;
+        // }
+        // return $details;
+
         $customGroupId = self::getCustomGroupId();
         self::writeLog($customGroupId, 'custom group id');
         $customGroupName = self::getCustomGroupName($customGroupId);
@@ -1144,10 +1216,12 @@ class CRM_Simplezmaleadgen_Utils
 
         // check by saved custom fields (only "marketing consent" for now)
         foreach ($customFields as $customField) {
+            // foreach ($savedCustomFieldIds as $savedFieldId) {
             if ($customField["label"] == $getCustomFieldLabel["label"]) {
                 $customFieldName = $customField["name"];
                 array_push($apiSelectFields, $customGroupName . '.' . $customFieldName);
             }
+            // }
         }
 
         self::writeLog($apiSelectFields, 'apiSelectFields');
@@ -1200,6 +1274,18 @@ class CRM_Simplezmaleadgen_Utils
     public static function getMethod($donationMethodId)
     {
         self::writeLog($donationMethodId, 'donation method id');
+        // dynamically retrieves custom fields
+        // $customGroupId = self::getCustomGroupId();
+        // $customFields = self::getCustomFields($customGroupId);
+
+        // check by custom field keywords, compulsory words to be named for custom field
+        // foreach ($customFields as $customField) {
+        //     if (/*str_contains($customField["label"], "Method")*/ $customField["label"] === "Payment Methods") {
+        //         $donationMethod = $customField["name"];
+        //     }
+        // }
+        // self::writeLog($donationMethod, 'donation method name');
+
         // get all payment methods
         $paymentMethods = civicrm_api4('OptionValue', 'get', [
             'select' => [
@@ -1237,6 +1323,26 @@ class CRM_Simplezmaleadgen_Utils
         $donationMethod = self::getMethod($donationMethodId);
         self::writeLog($donationMethod, 'donation method');
 
+        // switch ($getDonationMethod) {
+        //     case 1:
+        //         $donationMethod = "Credit Card";
+        //         break;
+        //     case 2:
+        //         $donationMethod = "Debit Card";
+        //         break;
+        //     case 3:
+        //         $donationMethod = "Cash";
+        //         break;
+        //     case 4:
+        //         $donationMethod = "Cheque";
+        //         break;
+        //     case 5:
+        //         $donationMethod = "EFT";
+        //         break;
+        //     default:
+        //         $donationMethod = "";
+        //         break;
+        // }
         $donationAmount = $activityDetails->getDonationAmount();
 
         if ($contact->find(TRUE)) { // if contact is found in db
@@ -1255,9 +1361,7 @@ class CRM_Simplezmaleadgen_Utils
             $first_name = $contact->first_name;
             $last_name = $contact->last_name;
             $birth_date = $contact->birth_date;
-            if ($birth_date) {
-                $formatted_birth_date = date('M d, Y', strtotime($birth_date));
-            }
+            $formatted_birth_date = date('M d, Y', strtotime($birth_date));
             $email = self::getPrimaryEmail($contactId);
             $phone = self::getPrimaryPhone($contactId);
             $addressInfo = self::getAddressInfo($contactId);
@@ -1322,6 +1426,69 @@ class CRM_Simplezmaleadgen_Utils
                 self::writeLog($response['message'], 'Zoho MA Error 0');
             }
 
+            // $totalAmountDonatedActivity = self::getTotalAmountDonatedActivity($contactId, $activityTypeId);
+            // $totalAmountDonatedContribution = self::getTotalAmountDonatedContribution($contactId);
+
+            // $totalAmountDonated = $totalAmountDonatedActivity + $totalAmountDonatedContribution;
+
+            // if ($donationCount == 1) {
+            //     $list = $first_list;
+            //     if ($donationMethod) {
+            //         $lead[$fieldFirstDonationMethod] = $donationMethod;
+            //     }
+            //     if ($donationAmount) {
+            //         $lead[$fieldFirstDonationAmount] = $donationAmount;
+            //     }
+            //     if ($totalAmountDonated) {
+            //         $lead[$fieldTotalAmountDonated] = $totalAmountDonated;
+            //     }
+            //     if ($donationCount) {
+            //         $lead[$fieldTotalDonationsMade] = $donationCount;
+            //     }
+            // } elseif ($donationCount == 2) {
+            //     // first unsubscribe from first-time donors
+            //     $apiLinkUnsubscribe = 'json/listunsubscribe';
+            //     $params = ['listkey' => $first_list, 'leadinfo' => json_encode($lead)];
+
+            //     $response = self::getSomethingUsingGuzzlePost($apiLinkUnsubscribe, $params, 'POST');
+            //     if (intval($response['code']) != 0) {
+            //         self::writeLog($response['message'], 'Zoho MA Error 0');
+            //     }
+
+            //     // then subscribe to repeated donors
+            //     $list = $next_list;
+            //     if ($donationMethod) {
+            //         $lead[$fieldSecondDonationMethod] = $donationMethod;
+            //     }
+            //     if ($donationAmount) {
+            //         $lead[$fieldSecondDonationAmount] = $donationAmount;
+            //     }
+            //     if ($totalAmountDonated) {
+            //         $lead[$fieldTotalAmountDonated] = $totalAmountDonated;
+            //     }
+            //     if ($donationCount) {
+            //         $lead[$fieldTotalDonationsMade] = $donationCount;
+            //     }
+            // } elseif ($donationCount > 2) {
+            //     $list = $next_list;
+            //     if ($totalAmountDonated) {
+            //         $lead[$fieldTotalAmountDonated] = $totalAmountDonated;
+            //     }
+            //     if ($donationCount) {
+            //         $lead[$fieldTotalDonationsMade] = $donationCount;
+            //     }
+            // }
+
+            // $params = [
+            //     'listkey' => $list,
+            //     'leadinfo' => json_encode($lead),
+            // ];
+            // // self::writeLog($params["leadinfo"], 'leadinfo');
+
+            // $response = self::getSomethingUsingGuzzlePost($apiLinkSubscribe, $params, 'POST');
+            // if (intval($response['code']) != 0) {
+            //     self::writeLog($response['message'], 'Zoho MA Error 0');
+            // }
             return intval($response['code']);
         }
     }
@@ -1341,6 +1508,77 @@ class CRM_Simplezmaleadgen_Utils
             self::writeLog("marketing consent unchecked");
         }
     }
+
+    // public static function createContribution($activityType, $objectId, $objectActivityTypeId)
+    // {
+    //     self::writeLog($activityType, "inside create contribution");
+    //     try {
+    //         $activityTypeId = self::getActivityTypeId($activityType);
+    //         self::writeLog($activityTypeId, "activityTypeId");
+    //         self::writeLog($objectId, "objectId");
+    //         $contactId = self::getContactId($objectId);
+    //         self::writeLog($contactId, "contactId");
+    //         $activityDetails = self::getActivityDetails($activityTypeId, $objectId);
+    //         self::writeLog($activityDetails, "activityDetails");
+    //         $method = 0;
+    //         switch ($activityDetails["donation_method"]) {
+    //             case "credit-card":
+    //                 $method = 1;
+    //                 break;
+    //             case "debit-card":
+    //                 $method = 2;
+    //                 break;
+    //             case "cash":
+    //                 $method = 3;
+    //                 break;
+    //             case "check":
+    //                 $method = 4;
+    //                 break;
+    //             case "eft":
+    //                 $method = 5;
+    //                 break;
+    //             default:
+    //                 $method = $activityDetails["donation_method"];
+    //                 break;
+    //         }
+    //         $contributionDetails = array(
+    //             "contact_id" => $contactId,
+    //             "payment_instrument_id" => $method,
+    //             "total_amount" => $activityDetails["donation_amount"],
+    //             "receive_date" => $activityDetails["created_date"],
+    //             "currency" => "USD",
+    //             "financial_type_id" => 1,
+    //             "contribution_status_id" => 1,
+    //         );
+    //         self::writeLog($contributionDetails, "contribution details");
+
+    //         $str = $activityDetails["subscribe_choice"];
+    //         self::writeLog($str, "str");
+    //         $subscribeChoice = str_replace('\u0001', '', $str);
+    //         self::writeLog($subscribeChoice, "subscribeChoice");
+    //         $subscribeId = 0;
+    //         switch ($subscribeChoice) {
+    //             case "yes":
+    //                 $subscribeId = 1;
+    //                 break;
+    //             case "no":
+    //                 $subscribeId = 2;
+    //                 break;
+    //             default:
+    //                 $subscribeId = $subscribeChoice;
+    //                 break;
+    //         }
+
+    //         $returnedData = array(
+    //             "contribution_details" => $contributionDetails,
+    //             "subscribe_id" => $subscribeId,
+    //         );
+
+    //         return $returnedData; // for choice of subscription to mailing list
+    //     } catch (Exception $e) {
+    //         self::writeLog($e->getMessage(), "create contribution error");
+    //     }
+    // }
 
     /**
      * Check if a custom field exists given only the `label`, but we want to

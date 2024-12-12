@@ -1,25 +1,30 @@
 # com.octopus8.simplezmaleadgen
 
-## Overview
+![Screenshot](/images/screenshot.png)
 
-Create activity type and custom fields first, and enter ZMA client credentials (refer to Getting Started below) into configuration form, mailing subscription list name, activity type & custom field linked to the checkbox trigger (Marketing Consent).
+Must create activity type and custom fields first, and enter ZMA client credentials into configuration page
 (Administer -> CiviContribute -> Configure Simple ZMA Lead Gen )
 
-After submission of a donation through Ninja Form is done, a Pending Contribution activity is created.
-
-This extension first adds it's Contact to the mailing subscription list in Zoho Marketing Automation (Name is based on the value entered through configuration form).
-
-If the email is not valid, the lead is not added.
+After Submission of a donation through Ninja Form, this extension adds it's Contact to the lists in Zoho Marketing Automation.
 
 The lead is added after the contact confirms subscription if double opt-in is enabled.
 
-To disable double opt-in so that the lead will be added directly, in ZMA, go to settings page -> "Consent and privacy" -> "Double opt-in" -> turn off "Enable double opt-in".
+If the email is not valid, the lead is not added.
 
-After Pending Contribution activity is updated to completed status, Contribution record will be created.
+To disable double opt-in, go to settings page -> "Consent and privacy" -> "Double opt-in" -> turn off "Enable double opt-in".
 
-For first time donors, adds contact into "First-Time Donors" list. Repeat donors, adds contact into "Repeated Donors" list while also removing him from "First-Time Donors" list (if he exists inside).
+Check if user opt-in to subscription list.
 
-Stores contact information & donation information in custom fields.
+Adds contact into the mailing list (Name is based on the configuration page)
+
+For first time donors, adds contact into "First Contribution" list. Second time donors, adds contact into "Next Contribution" list. Thereafter, does not add anymore.
+
+Stores contact information & donation information, custom fields are based on the custom group configured.
+
+Keywords for custom fields:
+Method -> e.g. Donation Method.
+Amount -> e.g. Donation Amount.
+Mailing/Marketing -> e.g. Mailing Consent/Marketing Consent.
 
 The extension is licensed under [AGPL-3.0](LICENSE.txt).
 

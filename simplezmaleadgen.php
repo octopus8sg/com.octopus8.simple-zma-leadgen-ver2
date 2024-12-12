@@ -159,9 +159,35 @@ function simplezmaleadgen_civicrm_pre($op, $objectName, $objectId, &$objectRef)
 
 // }
 
+// global $subscribeChoice;
 function simplezmaleadgen_civicrm_postCommit($op, $objectName, $objectId, &$object)
 {
-    Civi::log()->debug();
+
+    U::writeLog($op, 'op');
+    U::writeLog($objectName, 'objectName');
+    U::writeLog($objectId, 'objectId');
+    U::writeLog($object, 'object');
+    // create contribution from ninja form activity submission
+    // if ($objectName === "Activity") {
+    //     U::writeLog("Inside activity", "Debugging");
+    //     if ($op === 'create') {
+    //         U::writeLog("Inside edit", "Debugging");
+    //         $activityType = "Donation Form";
+    //         global $subscribeChoice;
+    //         U::writeLog($activityType, 'activity type before create contribution');
+    //         U::writeLog($objectId, 'object id before create contribution');
+    //         $receivedData = U::createContribution($activityType, $objectId);
+
+    //         $contributionDetails = $receivedData["contribution_details"];
+    //         U::writeLog($contributionDetails, 'contribution detailin postcommit');
+    //         $subscribeChoice = $receivedData["subscribe_id"];
+    //         U::writeLog($contributionDetails, 'contribution detailin postcommit');
+
+    //         // create contribution with apiv4
+    //         civicrm_api4("Contribution", "create", ["values" => $contributionDetails, "checkPermissions" => TRUE]);
+    //     }
+    // }
+
     // add contact into mailing subscription upon ninja form activity submission
     if ($objectName == 'Activity') {
         // U::writeLog($op);
@@ -178,11 +204,14 @@ function simplezmaleadgen_civicrm_postCommit($op, $objectName, $objectId, &$obje
         }
     }
 
+    // not used for now
     // Compare the original and modified states of the object
     global $originalState;
     global $modifiedState;
 
     if ($objectName === 'Contribution') {
+        //         global $subscribeChoice;
+//         if ($subscribeChoice = 1) {
         if ($op === 'edit') {
             $prev_status_id = $originalState['contribution_status_id'];
             $new_status_id = $modifiedState['contribution_status_id'];
@@ -194,6 +223,7 @@ function simplezmaleadgen_civicrm_postCommit($op, $objectName, $objectId, &$obje
 //                U::writeLog($new_status, '$new_status simplezmaleadgen_civicrm_postCommit');
             if ($new_status == 'Completed' && $prev_status != $new_status) {
                 U::sendContributionContact($object);
+
             }
         }
         if ($op === 'create') {
@@ -203,6 +233,7 @@ function simplezmaleadgen_civicrm_postCommit($op, $objectName, $objectId, &$obje
                 U::sendContributionContact($object);
             }
         }
+        //         }
     }
 
 }

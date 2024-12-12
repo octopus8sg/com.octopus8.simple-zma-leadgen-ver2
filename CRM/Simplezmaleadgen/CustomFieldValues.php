@@ -1,4 +1,6 @@
 <?php
+use CRM_Simplezmaleadgen_Utils as U;
+
 class CustomFieldValues
 {
     private $subscribeChoice;

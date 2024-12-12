@@ -35,8 +35,6 @@ class CRM_Simplezmaleadgen_Form_Configuration extends CRM_Core_Form
         $this->add('text', U::MAILING_LIST_NAME['slug'], U::MAILING_LIST_NAME['name'], $textsize, TRUE);
         $this->add('static', U::MAILING_LIST_NAME['slug'] . "_description", U::MAILING_LIST_NAME['slug'], U::MAILING_LIST_NAME['description']);
 
-        $this->addElement('html', '<td colspan="2"></td>');
-
         $this->add('select', U::ACTIVITY_TYPE['slug'], U::ACTIVITY_TYPE['name'], U::getActivityTypeOptions(), $textsize, TRUE, ['placeholder' => ts('- Please Select'),]);
         $this->add('static', U::ACTIVITY_TYPE['slug'] . "_description", U::ACTIVITY_TYPE['slug'], U::ACTIVITY_TYPE['description']);
 
@@ -44,12 +42,20 @@ class CRM_Simplezmaleadgen_Form_Configuration extends CRM_Core_Form
         $this->add('static', U::CUSTOM_GROUP['slug'] . "_description", U::CUSTOM_GROUP['slug'], U::CUSTOM_GROUP['description']);
 
         $this->add('select', U::CUSTOM_FIELD['slug'], U::CUSTOM_FIELD['name'], [], $textsize, TRUE);
-
+        // $this->add('select', U::CUSTOM_FIELDS['slug'], U::CUSTOM_FIELDS['name'], [], TRUE, [
+        //     'multiple' => 'multiple',
+        //     'class' => 'crm-select2',
+        //     'placeholder' => ts('- Please Select'),
+        // ]);
         if (CRM_Utils_System::currentPath() == 'civicrm/simplezmaleadgen/configuration') {
             CRM_Core_Resources::singleton()->addScriptFile('com.octopus8.simplezmaleadgen', 'CRM\Simplezmaleadgen\Form\updateCustomFieldsOptions.js', 100, 'html-header');
             CRM_Core_Resources::singleton()->addStyleFile('com.octopus8.simplezmaleadgen', 'CRM\Simplezmaleadgen\Form\style.css');
         }
         $this->add('static', U::CUSTOM_FIELD['slug'] . "_description", U::CUSTOM_FIELD['slug'], U::CUSTOM_FIELD['description']);
+
+        // $this->add('html', $this->displayLastSavedCustomFields());
+        // Add a placeholder for the table
+        // $this->addElement('html', '<div id="lastSavedCustomFieldsTable"></div>');
 
         $this->assign('leftEmptySpace', '<div id="leftEmptySpace"></div>');
 
